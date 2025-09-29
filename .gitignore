@@ -125,3 +125,30 @@ Desktop.ini
 # Backup files
 *.bak
 *.backup
+
+# Cache directories
+.cache
+.eslintcache
+.stylelintcache
+.swc
+
+# Turborepo
+.turbo
+
+# Contentlayer
+.contentlayer
+
+# Additional build outputs
+dist/
+build/
+
+# Test coverage
+.nyc_output
+
+# Playwright
+playwright-report/
+test-results/
+
+# Local development
+.env.development.local
+.env.production.local
