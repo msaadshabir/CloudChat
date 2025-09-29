@@ -50,24 +50,41 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="max-w-2xl mx-auto border-x">
-      {/* Header */}
-      <div className="border-b p-4 font-bold text-xl">Home</div>
+    <div className="min-h-screen bg-black text-green-400 font-mono">
+      {/* Terminal Header */}
+      <div className="border border-gray-600 bg-black p-2 text-center">
+        <div className="text-green-400 font-bold">CLOUDCHAT v1.0 - Social Terminal</div>
+        <div className="text-xs text-gray-400">Connected to Neon Database | User: {userId ? 'AUTHENTICATED' : 'GUEST'}</div>
+      </div>
 
-      {/* Create Tweet */}
-      {userId && <CreateTweet />}
+      {/* Main Terminal Window */}
+      <div className="max-w-4xl mx-auto border border-gray-600 bg-black m-4">
+        {/* Header */}
+        <div className="border-b border-gray-600 p-3 bg-gray-900 text-green-400 font-bold text-center">
+          [HOME FEED] - {tweetsWithMetadata.length} TWEETS LOADED
+        </div>
 
-      {/* Tweet Feed */}
-      <div>
-        {tweetsWithMetadata.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">
-            No tweets yet. Be the first to post!
-          </div>
-        ) : (
-          tweetsWithMetadata.map(tweet => (
-            <TweetCard key={tweet.id} tweet={tweet} />
-          ))
-        )}
+        {/* Create Tweet */}
+        {userId && <CreateTweet />}
+
+        {/* Tweet Feed */}
+        <div className="divide-y divide-gray-700">
+          {tweetsWithMetadata.length === 0 ? (
+            <div className="text-center py-10 text-gray-500 border border-gray-600 m-4 bg-gray-900">
+              <div className="text-green-400 mb-2">[SYSTEM MESSAGE]</div>
+              No tweets in database. Execute &apos;CREATE TWEET&apos; to initialize feed.
+            </div>
+          ) : (
+            tweetsWithMetadata.map(tweet => (
+              <TweetCard key={tweet.id} tweet={tweet} />
+            ))
+          )}
+        </div>
+
+        {/* Terminal Footer */}
+        <div className="border-t border-gray-600 p-2 text-center text-xs text-gray-500 bg-gray-900">
+          CloudChat Terminal - Press Ctrl+C to exit | Status: ONLINE
+        </div>
       </div>
     </div>
   );
