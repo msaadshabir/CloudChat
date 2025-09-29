@@ -1,7 +1,6 @@
 // src/app/page.tsx
 import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { db } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { tweets, users, likes } from '@/lib/db/schema';
 import { eq, count, desc } from 'drizzle-orm';
 import CreateTweet from '@/components/CreateTweet';
@@ -11,7 +10,7 @@ export default async function HomePage() {
   const { userId } = await auth();
 
   // Fetch tweets with author info and like counts
-  const tweetData = await db
+  const tweetData = await getDb()
     .select({
       id: tweets.id,
       content: tweets.content,
@@ -38,7 +37,7 @@ export default async function HomePage() {
     .map(tweet => ({
     id: tweet.id,
     content: tweet.content,
-    createdAt: tweet.createdAt,
+    createdAt: tweet.createdAt || new Date(),
     author: {
       id: tweet.author!.id,
       name: tweet.author!.name || 'Anonymous',

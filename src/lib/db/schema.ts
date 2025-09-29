@@ -1,6 +1,5 @@
-import { relations, sql } from "drizzle-orm";
-import { pgTable, text, timestamp, uuid, boolean, integer } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -14,7 +13,7 @@ export const tweets = pgTable("tweets", {
   id: uuid("id").primaryKey().defaultRandom(),
   content: text("content").notNull(),
   authorId: text("author_id").references(() => users.id),
-  parentId: uuid("parent_id").references(() => tweets.id),
+  parentId: uuid("parent_id"), // .references(() => tweets.id), // Self-reference causing TS error
   createdAt: timestamp("created_at").defaultNow(),
 });
 

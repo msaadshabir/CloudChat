@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { tweets, likes, users } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs/server';
 import { eq, count, desc } from 'drizzle-orm';
@@ -11,24 +11,24 @@ export async function POST(request: Request) {
   const { content, parentId } = await request.json();
   
   try {
-    const [newTweet] = await db
+    const [newTweet] = await getDb()
       .insert(tweets)
       .values({ 
         content, 
         authorId: userId,
         parentId: parentId || null
       })
-      .returning() as any;
+      .returning() as { id: string; content: string; authorId: string; parentId: string | null; createdAt: Date }[];
     
     return NextResponse.json(newTweet);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create tweet' }, { status: 500 });
   }
 }
 
 export async function GET() {
   try {
-    const tweetData = await db
+    const tweetData = await getDb()
       .select({
         id: tweets.id,
         content: tweets.content,
@@ -49,7 +49,7 @@ export async function GET() {
       .limit(50);
     
     return NextResponse.json(tweetData);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch tweets' }, { status: 500 });
   }
 }

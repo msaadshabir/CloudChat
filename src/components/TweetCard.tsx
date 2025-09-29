@@ -3,6 +3,7 @@
 import { format } from 'date-fns';
 import { Heart, MessageCircle, Repeat, Share } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
+import Image from 'next/image';
 
 interface Tweet {
   id: string;
@@ -19,10 +20,12 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   return (
     <div className="p-4 border-b hover:bg-gray-50">
       <div className="flex gap-3">
-        <img
+        <Image
           src={tweet.author.image || '/default-avatar.png'}
           alt={tweet.author.name}
-          className="w-10 h-10 rounded-full"
+          width={40}
+          height={40}
+          className="rounded-full"
         />
         <div className="flex-1">
           <div className="flex items-center gap-2">
