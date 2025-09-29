@@ -58,8 +58,8 @@ export default async function HomePage() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-64">
-        {/* Top Navigation */}
-        <TopNav userId={userId} />
+  {/* Top Navigation */}
+  <TopNav />
 
         {/* Feed Content */}
         <div className="flex-1 max-w-2xl mx-auto px-6 py-8">

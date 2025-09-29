@@ -2,11 +2,7 @@
 
 import { useUser } from '@clerk/nextjs';
 
-interface TopNavProps {
-  userId: string | null;
-}
-
-export default function TopNav({ userId }: TopNavProps) {
+export default function TopNav() {
   const { user } = useUser();
 
   return (
