@@ -2,21 +2,26 @@
 
 :root {
   --background: #000000;
-  --foreground: #00ff00;
+  --foreground: #ffffff;
+  --muted: #666666;
   --border: #333333;
   --accent: #ffffff;
+  --card: #0a0a0a;
+  --hover: #1a1a1a;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Courier New', monospace;
-  line-height: 1.4;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Terminal-style scrollbar */
+/* Vercel-style scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -25,46 +30,62 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: #333333;
-  border-radius: 0;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555555;
 }
 
-/* Terminal border styles */
-.terminal-border {
-  border: 1px solid #333333;
-  background: #000000;
+/* Modern card styling */
+.vercel-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.terminal-input {
-  background: #000000;
-  border: 1px solid #333333;
-  color: #00ff00;
-  font-family: 'Courier New', monospace;
+.vercel-card:hover {
+  border-color: #555555;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.terminal-input:focus {
-  border-color: #00ff00;
+/* Input styling */
+.vercel-input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.vercel-input:focus {
+  border-color: #ffffff;
   outline: none;
-  box-shadow: 0 0 5px #00ff00;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
-.terminal-button {
-  background: #000000;
-  border: 1px solid #333333;
-  color: #00ff00;
-  font-family: 'Courier New', monospace;
-  transition: all 0.2s;
+/* Button styling */
+.vercel-button {
+  background: var(--foreground);
+  border: 1px solid var(--foreground);
+  color: var(--background);
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.terminal-button:hover:not(:disabled) {
-  border-color: #00ff00;
-  box-shadow: 0 0 5px #00ff00;
+.vercel-button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--foreground);
 }
 
-.terminal-button:disabled {
+.vercel-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Subtle gradient backgrounds */
+.vercel-gradient {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
 }

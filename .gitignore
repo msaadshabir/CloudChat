@@ -1,49 +1,71 @@
 # Dependencies
-node_modules
+node_modules/
 .pnp
 .pnp.js
+.yarn/install-state.gz
 
 # Testing
 /coverage
+.nyc_output
 
 # Next.js
 .next/
 /out/
+.next-env.local
 
-# Production
+# Production builds
 /build
+/dist/
 
 # Misc
 .DS_Store
 *.pem
 
-# Debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Local env files
-.env*.local
 .env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Vercel
 .vercel
+.vercel/
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# Vercel Blob
+.vercel/blob
 
 # Clerk
-.clerk
+.clerk/
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
+
+# Drizzle
+drizzle/
+drizzle.config.ts
+migrations/
+*.db-wal
+*.db-shm
 
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
 pids
@@ -106,6 +128,12 @@ jspm_packages/
 # DynamoDB Local files
 .dynamodb/
 
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
 # IDE and Editor files
 .vscode/
 .idea/
@@ -117,6 +145,7 @@ jspm_packages/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
 
 # Temporary files
 *.tmp
@@ -131,6 +160,7 @@ Desktop.ini
 .eslintcache
 .stylelintcache
 .swc
+.turbo
 
 # Turborepo
 .turbo
@@ -152,3 +182,16 @@ test-results/
 # Local development
 .env.development.local
 .env.production.local
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# ESLint
+.eslintcache
+
+# PostCSS
+postcss.config.js.map
+
+# Tailwind
+tailwind.config.js.map

@@ -5,6 +5,8 @@ import { tweets, users, likes } from '@/lib/db/schema';
 import { eq, count, desc } from 'drizzle-orm';
 import CreateTweet from '@/components/CreateTweet';
 import TweetCard from '@/components/TweetCard';
+import Sidebar from '@/components/Sidebar';
+import TopNav from '@/components/TopNav';
 
 export default async function HomePage() {
   const { userId } = await auth();
@@ -50,40 +52,44 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="min-h-screen bg-black text-green-400 font-mono">
-      {/* Terminal Header */}
-      <div className="border border-gray-600 bg-black p-2 text-center">
-        <div className="text-green-400 font-bold">CLOUDCHAT v1.0 - Social Terminal</div>
-        <div className="text-xs text-gray-400">Connected to Neon Database | User: {userId ? 'AUTHENTICATED' : 'GUEST'}</div>
-      </div>
+    <div className="min-h-screen bg-black text-white flex">
+      {/* Left Sidebar */}
+      <Sidebar />
 
-      {/* Main Terminal Window */}
-      <div className="max-w-4xl mx-auto border border-gray-600 bg-black m-4">
-        {/* Header */}
-        <div className="border-b border-gray-600 p-3 bg-gray-900 text-green-400 font-bold text-center">
-          [HOME FEED] - {tweetsWithMetadata.length} TWEETS LOADED
-        </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col ml-64">
+        {/* Top Navigation */}
+        <TopNav userId={userId} />
 
-        {/* Create Tweet */}
-        {userId && <CreateTweet />}
+        {/* Feed Content */}
+        <div className="flex-1 max-w-2xl mx-auto px-6 py-8">
+          {/* Feed Header */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-2">Home</h2>
+            <p className="text-gray-400">Discover what&apos;s happening in your network</p>
+          </div>
 
-        {/* Tweet Feed */}
-        <div className="divide-y divide-gray-700">
-          {tweetsWithMetadata.length === 0 ? (
-            <div className="text-center py-10 text-gray-500 border border-gray-600 m-4 bg-gray-900">
-              <div className="text-green-400 mb-2">[SYSTEM MESSAGE]</div>
-              No tweets in database. Execute &apos;CREATE TWEET&apos; to initialize feed.
-            </div>
-          ) : (
-            tweetsWithMetadata.map(tweet => (
-              <TweetCard key={tweet.id} tweet={tweet} />
-            ))
-          )}
-        </div>
+          {/* Create Tweet */}
+          {userId && <CreateTweet />}
 
-        {/* Terminal Footer */}
-        <div className="border-t border-gray-600 p-2 text-center text-xs text-gray-500 bg-gray-900">
-          CloudChat Terminal - Press Ctrl+C to exit | Status: ONLINE
+          {/* Tweet Feed */}
+          <div className="space-y-6">
+            {tweetsWithMetadata.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium mb-2">No posts yet</h3>
+                <p className="text-gray-500">Be the first to share something with your network.</p>
+              </div>
+            ) : (
+              tweetsWithMetadata.map(tweet => (
+                <TweetCard key={tweet.id} tweet={tweet} />
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
