@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // External packages for server components
-  serverExternalPackages: ['@clerk/nextjs', 'drizzle-orm'],
+  serverExternalPackages: ['drizzle-orm'],
   // Ensure proper headers for dynamic content
   async headers() {
     return [

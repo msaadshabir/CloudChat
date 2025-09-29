@@ -195,3 +195,4 @@ postcss.config.js.map
 
 # Tailwind
 tailwind.config.js.map
+logs_result.csv
