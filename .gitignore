@@ -196,3 +196,12 @@ postcss.config.js.map
 # Tailwind
 tailwind.config.js.map
 logs_result.csv
+
+# Clerk generated folder when using Clerk CLI under src
+src/.clerk/
+
+# Local analysis logs
+logs_result.json
+
+# Local dev scripts
+create-tables.ts
