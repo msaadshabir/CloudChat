@@ -1,8 +1,6 @@
 'use client';
 import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 
 export default function CreateTweet() {
   const { user } = useUser();
@@ -14,15 +12,19 @@ export default function CreateTweet() {
 
   return (
     <div className="border-b p-4">
-      <Textarea 
+      <textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
         placeholder="What's happening?"
-        className="mb-2 min-h-[100px]"
+        className="w-full p-2 border rounded mb-2 min-h-[100px] resize-none"
       />
-      <Button onClick={handleSubmit} disabled={!content.trim()}>
+      <button
+        onClick={handleSubmit}
+        disabled={!content.trim()}
+        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+      >
         Tweet
-      </Button>
+      </button>
     </div>
   );
 }

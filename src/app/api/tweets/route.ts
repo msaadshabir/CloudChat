@@ -1,11 +1,11 @@
 import { db } from '@/lib/db';
-import { tweets, likes } from '@/lib/db/schema';
+import { tweets, likes, users } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs/server';
-import { eq, count } from 'drizzle-orm';
+import { eq, count, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { content, parentId } = await request.json();
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         authorId: userId,
         parentId: parentId || null
       })
-      .returning();
+      .returning() as any;
     
     return NextResponse.json(newTweet);
   } catch (error) {
@@ -34,8 +34,10 @@ export async function GET() {
         content: tweets.content,
         createdAt: tweets.createdAt,
         author: {
+          id: users.id,
           name: users.name,
-          image: users.image
+          image: users.image,
+          username: users.username
         },
         likes: count(likes.id)
       })
@@ -43,7 +45,7 @@ export async function GET() {
       .leftJoin(users, eq(tweets.authorId, users.id))
       .leftJoin(likes, eq(tweets.id, likes.tweetId))
       .groupBy(tweets.id, users.id)
-      .orderBy(tweets.createdAt, 'desc')
+      .orderBy(desc(tweets.createdAt))
       .limit(50);
     
     return NextResponse.json(tweetData);
