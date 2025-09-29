@@ -95,3 +95,6 @@ export default async function HomePage() {
     </div>
   );
 }
+
+// Force dynamic rendering to avoid prerendering issues with Clerk
+export const dynamic = 'force-dynamic';

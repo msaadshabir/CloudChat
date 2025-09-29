@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Disable static optimization for pages with dynamic content
-  experimental: {
-    serverComponentsExternalPackages: ['@clerk/nextjs', 'drizzle-orm'],
-  },
+  // External packages for server components
+  serverExternalPackages: ['@clerk/nextjs', 'drizzle-orm'],
   // Ensure proper headers for dynamic content
   async headers() {
     return [
