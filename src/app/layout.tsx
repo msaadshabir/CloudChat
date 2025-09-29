@@ -1,8 +1,6 @@
-"use client";
-
-import { ClerkProvider } from '@clerk/nextjs';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import Providers from '@/components/Providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -12,10 +10,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
-      <html lang="en">
-        <body className={inter.className}>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={inter.className}>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
   );
 }
