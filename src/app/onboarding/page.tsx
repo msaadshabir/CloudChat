@@ -2,7 +2,6 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { getDb } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
 import ProfileImageUploader from '@/components/ProfileImageUploader';

@@ -66,7 +66,7 @@ export default async function ActivityPage() {
               <div className="vercel-card px-6 py-8 rounded-[10px] text-white/60 text-sm">No likes yet — share a cloud to get the conversation started.</div>
             ) : (
               <ul className="space-y-4">
-                {received.map((it) => (
+                {received.map((it: { id: string; likedAt: Date | null; tweetContent: string | null; likerName: string | null; likerUsername: string | null }) => (
                   <li key={it.id} className="vercel-card p-6 rounded-[10px] flex items-start gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-medium">{(it.likerName || it.likerUsername || 'U')?.charAt(0).toUpperCase()}</span>
@@ -74,7 +74,7 @@ export default async function ActivityPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm">
                         <span className="text-white/80">{it.likerName || it.likerUsername || 'Someone'}</span> liked your cloud
-                        <span className="text-white/40"> · {shortRelative(it.likedAt as any)}</span>
+                        <span className="text-white/40"> · {shortRelative(it.likedAt ?? new Date())}</span>
                       </p>
                       <p className="text-white/60 text-sm mt-1 truncate">“{it.tweetContent || 'Deleted cloud'}”</p>
                     </div>
@@ -91,9 +91,9 @@ export default async function ActivityPage() {
               <div className="vercel-card px-6 py-8 rounded-[10px] text-white/60 text-sm">You haven’t liked any clouds yet.</div>
             ) : (
               <ul className="space-y-4">
-                {yours.map((it) => (
+                {yours.map((it: { id: string; likedAt: Date | null; tweetContent: string | null }) => (
                   <li key={it.id} className="vercel-card p-6 rounded-[10px]">
-                    <p className="text-white/70 text-sm">You liked <span className="text-white/40">· {shortRelative(it.likedAt as any)}</span></p>
+                    <p className="text-white/70 text-sm">You liked <span className="text-white/40">· {shortRelative(it.likedAt ?? new Date())}</span></p>
                     <p className="text-white text-sm mt-1 truncate">“{it.tweetContent || 'Deleted cloud'}”</p>
                   </li>
                 ))}

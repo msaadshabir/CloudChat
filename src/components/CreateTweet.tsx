@@ -33,8 +33,9 @@ export default function CreateTweet() {
       setContent('');
       // Refresh home/feed to show the new cloud at the top
       router.refresh();
-    } catch (e: any) {
-      setError(e?.message || 'Something went wrong');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      setError(msg);
     } finally {
       setPosting(false);
     }

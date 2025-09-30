@@ -67,7 +67,24 @@ export default async function ProfilePage() {
                 <p className="text-white/50 max-w-md mx-auto">Start by creating your first cloud.</p>
               </div>
             ) : (
-              myClouds.map((t) => <TweetCard key={t.id} tweet={t as any} />)
+              myClouds.filter(t => t.author).map((t) => (
+                <TweetCard
+                  key={t.id}
+                  tweet={{
+                    id: t.id,
+                    content: t.content,
+                    createdAt: t.createdAt || new Date(),
+                    author: {
+                      id: t.author!.id,
+                      name: t.author!.name || 'Anonymous',
+                      image: t.author!.image || null,
+                      username: t.author!.username || undefined,
+                    },
+                    likes: Number(t.likes),
+                    replies: 0,
+                  }}
+                />
+              ))
             )}
           </div>
         </div>

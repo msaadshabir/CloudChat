@@ -55,8 +55,9 @@ export default function ProfileImageUploader({ currentUrl }: { currentUrl?: stri
       const url = data.url as string;
       // Server already saved the image URL to the user's profile.
       setPreview(url);
-    } catch (err: any) {
-      setError(err?.message || 'Something went wrong');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong';
+      setError(msg);
     } finally {
       setUploading(false);
     }

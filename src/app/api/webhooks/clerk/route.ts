@@ -3,9 +3,18 @@ import { getDb } from '@/lib/db';
 import { users, tweets, likes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+type ClerkUser = {
+  id: string;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  full_name?: string | null;
+  image_url?: string | null;
+};
+
 type ClerkUserEvent = {
   type: 'user.created' | 'user.updated' | 'user.deleted';
-  data: any;
+  data: ClerkUser;
 };
 
 export async function POST(req: Request) {
@@ -28,7 +37,7 @@ export async function POST(req: Request) {
         'svix-timestamp': svixTimestamp,
         'svix-signature': svixSignature,
       }) as ClerkUserEvent;
-    } catch (err) {
+    } catch {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
   } else {

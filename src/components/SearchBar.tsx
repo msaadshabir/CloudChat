@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function SearchBar({ initialQuery = '' }: { initialQuery?: string }) {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function SearchBar({ initialQuery = '' }: { initialQuery?: string
   useEffect(() => {
     const current = searchParams.get('q') || '';
     if (current !== value) setValue(current);
-  }, [searchParams]);
+  }, [searchParams, value]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
