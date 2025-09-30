@@ -1,14 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* Vercel-inspired Design Tokens */
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --muted: #666666;
-  --border: #333333;
-  --accent: #ffffff;
-  --card: #0a0a0a;
-  --hover: #1a1a1a;
+  --background: #000000; /* page background */
+  --foreground: #ffffff; /* primary text */
+  --muted: #8a8a8a;      /* secondary text */
+  --muted-2: #a3a3a3;    /* tertiary text */
+  --border: #2a2a2a;     /* subtle borders */
+  --panel: #0b0b0b;      /* panel/card surface */
+  --panel-2: #0e0e0e;    /* deeper surface */
+  --hover: #151515;      /* hover background */
+  --accent: #ffffff;     /* accent (Vercel uses white on black) */
+  --ring: rgba(255, 255, 255, 0.15);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --radius: 10px;
 }
 
 body {
@@ -40,30 +46,34 @@ body {
 
 /* Modern card styling */
 .vercel-card {
-  background: var(--card);
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border-radius: var(--radius);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .vercel-card:hover {
-  border-color: #555555;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #3a3a3a;
+  box-shadow: 0 8px 30px var(--shadow);
 }
 
 /* Input styling */
 .vercel-input {
-  background: var(--card);
+  background: var(--panel);
   border: 1px solid var(--border);
   color: var(--foreground);
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.vercel-input::placeholder {
+  color: var(--muted);
 }
 
 .vercel-input:focus {
-  border-color: #ffffff;
+  border-color: #3a3a3a;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 6px var(--ring);
 }
 
 /* Button styling */
@@ -71,14 +81,15 @@ body {
   background: var(--foreground);
   border: 1px solid var(--foreground);
   color: var(--background);
-  border-radius: 6px;
+  border-radius: 9999px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: transform 120ms ease, background 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .vercel-button:hover:not(:disabled) {
-  background: transparent;
-  color: var(--foreground);
+  transform: translateY(-1px);
+  background: #e7e7e7;
+  color: #000;
 }
 
 .vercel-button:disabled {
@@ -86,7 +97,115 @@ body {
   cursor: not-allowed;
 }
 
+/* Button variants */
+.vercel-button.ghost {
+  background: transparent;
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.vercel-button.ghost:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: #3a3a3a;
+}
+
+.vercel-button.outline {
+  background: transparent;
+  color: var(--foreground);
+  border-color: #3a3a3a;
+}
+
+.vercel-button.outline:hover:not(:disabled) {
+  background: var(--hover);
+}
+
 /* Subtle gradient backgrounds */
 .vercel-gradient {
   background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+}
+
+/* Navigation (topbar) */
+.vc-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border);
+}
+
+.vc-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+}
+
+/* Sidebar */
+.vc-sidebar {
+  width: 260px;
+  background: #000;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.vc-sidebar .vc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: var(--muted);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.vc-sidebar .vc-item:hover {
+  background: var(--hover);
+  color: var(--foreground);
+}
+
+.vc-sidebar .vc-item.active {
+  background: var(--panel-2);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 4px var(--ring) inset;
+}
+
+/* Badges / Pills */
+.vc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--muted-2);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: var(--panel);
+}
+
+/* Divider */
+.vc-hr {
+  height: 1px;
+  background: var(--border);
+  width: 100%;
+}
+
+/* Subtle icon button */
+.vc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  color: var(--muted-2);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.vc-icon:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--foreground);
 }

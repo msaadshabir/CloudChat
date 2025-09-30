@@ -6,21 +6,22 @@ export const users = pgTable("users", {
   username: text("username").unique(),
   name: text("name"),
   image: text("image"),
+  bio: text("bio"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const tweets = pgTable("tweets", {
   id: uuid("id").primaryKey().defaultRandom(),
   content: text("content").notNull(),
-  authorId: text("author_id").references(() => users.id),
+  authorId: text("author_id").references(() => users.id, { onDelete: 'cascade' }),
   parentId: uuid("parent_id"), // .references(() => tweets.id), // Self-reference causing TS error
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const likes = pgTable("likes", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").references(() => users.id),
-  tweetId: uuid("tweet_id").references(() => tweets.id),
+  userId: text("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  tweetId: uuid("tweet_id").references(() => tweets.id, { onDelete: 'cascade' }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

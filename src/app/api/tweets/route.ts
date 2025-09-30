@@ -9,12 +9,19 @@ export async function POST(request: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { content, parentId } = await request.json();
+  const text = (content ?? '').toString().trim();
+  if (!text || text.length === 0) {
+    return NextResponse.json({ error: 'Content cannot be empty' }, { status: 400 });
+  }
+  if (text.length > 280) {
+    return NextResponse.json({ error: 'Content exceeds 280 characters' }, { status: 400 });
+  }
   
   try {
     const [newTweet] = await getDb()
       .insert(tweets)
       .values({ 
-        content, 
+        content: text, 
         authorId: userId,
         parentId: parentId || null
       })

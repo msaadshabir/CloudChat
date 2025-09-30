@@ -7,9 +7,19 @@ import CreateTweet from '@/components/CreateTweet';
 import TweetCard from '@/components/TweetCard';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
+import { users as usersTable } from '@/lib/db/schema';
 
 export default async function HomePage() {
   const { userId } = await auth();
+  if (userId) {
+    // If signed in but missing username/name, send to onboarding
+    const db = await getDb();
+    const [row] = await db.select({ username: usersTable.username, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, userId));
+    if (!row?.username || !row?.name) {
+      // soft-gate: show feed but we could also redirect here with headers
+      // In app router, use Redirect component if desired; for now we keep home public as requested
+    }
+  }
 
   // Fetch tweets with author info and like counts
   const tweetData = await getDb()
@@ -57,32 +67,35 @@ export default async function HomePage() {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-64">
+      <div className="flex-1 flex flex-col ml-[260px]">
   {/* Top Navigation */}
   <TopNav />
 
         {/* Feed Content */}
-        <div className="flex-1 max-w-2xl mx-auto px-6 py-8">
+        <div className="flex-1 max-w-2xl mx-auto px-6 py-10 mt-6">
           {/* Feed Header */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2">Home</h2>
-            <p className="text-gray-400">Discover what&apos;s happening in your network</p>
+          <div className="mb-6 mt-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="vc-badge">Cloud Feed</span>
+            </div>
+            <h2 className="text-xl font-semibold">Home</h2>
+            <p className="text-white/60 text-sm">Share your thoughts and see new clouds from your network</p>
           </div>
 
-          {/* Create Tweet */}
+          {/* Create Cloud */}
           {userId && <CreateTweet />}
 
-          {/* Tweet Feed */}
-          <div className="space-y-6">
+          {/* Cloud Feed */}
+          <div className="space-y-4">
             {tweetsWithMetadata.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
+              <div className="text-center vercel-card px-12 py-16">
+                <div className="text-white/50 mb-4">
                   <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium mb-2">No posts yet</h3>
-                <p className="text-gray-500">Be the first to share something with your network.</p>
+                <h3 className="text-lg font-medium mb-2">No clouds yet</h3>
+                <p className="text-white/50 max-w-md mx-auto">Be the first to create a cloud and start the conversation.</p>
               </div>
             ) : (
               tweetsWithMetadata.map(tweet => (

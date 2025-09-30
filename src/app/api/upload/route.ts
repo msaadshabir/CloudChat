@@ -1,6 +1,9 @@
 import { put } from '@vercel/blob';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { getDb } from '@/lib/db';
+import { users } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -17,7 +20,11 @@ export async function POST(request: Request) {
     access: 'public',
   });
 
-  // TODO: Save blob.url to user record in DB
+  // Save blob.url to user record in DB
+  await (await getDb())
+    .update(users)
+    .set({ image: blob.url })
+    .where(eq(users.id, userId));
   
   return NextResponse.json({ url: blob.url });
 }
