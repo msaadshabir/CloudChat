@@ -13,3 +13,39 @@ export async function ensureUsersBioColumn() {
   }
   return migrationsRan;
 }
+
+export async function ensureRetweetsTable() {
+  if (!migrationsRan) {
+    migrationsRan = (async () => {
+      if (!process.env.DATABASE_URL) return;
+      const sql = neon(process.env.DATABASE_URL);
+      await sql`CREATE TABLE IF NOT EXISTS retweets (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id text REFERENCES users(id) ON DELETE CASCADE,
+        tweet_id uuid REFERENCES tweets(id) ON DELETE CASCADE,
+        created_at timestamp DEFAULT now()
+      )`;
+      // Unique pair to prevent duplicates
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS retweets_user_tweet_unique ON retweets(user_id, tweet_id)`;
+    })();
+  }
+  return migrationsRan;
+}
+
+export async function ensureLikesUniqueIndex() {
+  if (!process.env.DATABASE_URL) return;
+  const sql = neon(process.env.DATABASE_URL);
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS likes_user_tweet_unique ON likes(user_id, tweet_id)`;
+}
+
+export async function ensureRepliesTable() {
+  if (!process.env.DATABASE_URL) return;
+  const sql = neon(process.env.DATABASE_URL);
+  await sql`CREATE TABLE IF NOT EXISTS replies (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    tweet_id uuid REFERENCES tweets(id) ON DELETE CASCADE,
+    user_id text REFERENCES users(id) ON DELETE CASCADE,
+    content text NOT NULL,
+    created_at timestamp DEFAULT now()
+  )`;
+}

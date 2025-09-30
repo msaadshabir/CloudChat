@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -18,12 +18,29 @@ export const tweets = pgTable("tweets", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const replies = pgTable("replies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tweetId: uuid("tweet_id").references(() => tweets.id, { onDelete: 'cascade' }),
+  userId: text("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const likes = pgTable("likes", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").references(() => users.id, { onDelete: 'cascade' }),
   tweetId: uuid("tweet_id").references(() => tweets.id, { onDelete: 'cascade' }),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const retweets = pgTable("retweets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  tweetId: uuid("tweet_id").references(() => tweets.id, { onDelete: 'cascade' }),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => ({
+  userTweetUnique: uniqueIndex('retweets_user_tweet_unique').on(t.userId, t.tweetId),
+}));
 
 // Relations
 export const tweetsRelations = relations(tweets, ({ one, many }) => ({
@@ -36,4 +53,5 @@ export const tweetsRelations = relations(tweets, ({ one, many }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   tweets: many(tweets),
   likes: many(likes),
+  // retweets: many(retweets),
 }));

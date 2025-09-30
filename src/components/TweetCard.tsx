@@ -2,7 +2,9 @@
 
 import { format } from 'date-fns';
 import { shortRelative } from '@/lib/time';
-import { Heart, MessageCircle, Repeat, Share } from 'lucide-react';
+// Replace lucide icons with random generated SVGs
+import RandomIcon from './RandomIcon';
+import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -18,6 +20,11 @@ interface Tweet {
 export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const { user } = useUser();
   const router = useRouter();
+  const [likeCount, setLikeCount] = useState(tweet.likes);
+  const [replyCount, setReplyCount] = useState(tweet.replies);
+  const [retweeted, setRetweeted] = useState(false);
+  const [commenting, setCommenting] = useState(false);
+  const [comment, setComment] = useState('');
 
   const handleAuthRequired = () => {
     if (!user) {
@@ -27,19 +34,54 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
     return false;
   };
 
-  const handleReply = () => {
+  const handleReply = async () => {
     if (handleAuthRequired()) return;
-    // TODO: Implement reply functionality
+    if (!commenting) {
+      setCommenting(true);
+      return;
+    }
+    const text = comment.trim();
+    if (!text) return;
+    try {
+      const res = await fetch('/api/replies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tweetId: tweet.id, content: text }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setReplyCount(typeof data.replies === 'number' ? data.replies : replyCount + 1);
+      setComment('');
+      setCommenting(false);
+    } catch {}
   };
 
-  const handleRetweet = () => {
+  const handleRetweet = async () => {
     if (handleAuthRequired()) return;
-    // TODO: Implement retweet functionality
+    try {
+      const res = await fetch('/api/retweets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tweetId: tweet.id }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setRetweeted(Boolean(data.retweeted));
+    } catch {}
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (handleAuthRequired()) return;
-    // TODO: Implement like functionality
+    try {
+      const res = await fetch('/api/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tweetId: tweet.id }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (typeof data.likes === 'number') setLikeCount(data.likes);
+    } catch {}
   };
 
   const handleShare = () => {
@@ -82,45 +124,42 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between max-w-md pt-4 border-t border-[color:var(--border)]">
-            <button
-              onClick={handleReply}
-              className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors group"
-            >
+            <button onClick={handleReply} className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors group">
               <div className="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
-                <MessageCircle className="w-5 h-5" />
+                <RandomIcon seed={`reply-${tweet.id}`} />
               </div>
-              <span className="text-sm">{tweet.replies}</span>
+              <span className="text-sm">{replyCount}</span>
             </button>
 
-            <button
-              onClick={handleRetweet}
-              className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors group"
-            >
+            <button onClick={handleRetweet} className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors group">
               <div className="p-2 rounded-full group-hover:bg-green-400/10 transition-colors">
-                <Repeat className="w-5 h-5" />
+                <RandomIcon seed={`retweet-${tweet.id}-${retweeted}`} />
               </div>
-              <span className="text-sm">0</span>
+              <span className="text-sm">{retweeted ? '1' : '0'}</span>
             </button>
 
-            <button
-              onClick={handleLike}
-              className="flex items-center space-x-2 text-gray-400 hover:text-red-400 transition-colors group"
-            >
+            <button onClick={handleLike} className="flex items-center space-x-2 text-gray-400 hover:text-red-400 transition-colors group">
               <div className="p-2 rounded-full group-hover:bg-red-400/10 transition-colors">
-                <Heart className="w-5 h-5" />
+                <RandomIcon seed={`like-${tweet.id}-${likeCount}`} />
               </div>
-              <span className="text-sm">{tweet.likes}</span>
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="flex items-center space-x-2 text-gray-400 hover:text-gray-300 transition-colors group"
-            >
-              <div className="p-2 rounded-full group-hover:bg-gray-300/10 transition-colors">
-                <Share className="w-5 h-5" />
-              </div>
+              <span className="text-sm">{likeCount}</span>
             </button>
           </div>
+
+          {commenting && (
+            <div className="mt-3">
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write a comment…"
+                className="w-full bg-transparent border border-[color:var(--border)] rounded-md px-3 py-2 text-sm"
+                maxLength={280}
+              />
+              <div className="flex justify-end mt-2">
+                <button onClick={handleReply} className="vercel-button px-3 py-1 text-sm">Post</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
