@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 
 export default function TopNav() {
-  const { user } = useUser();
+  useUser();
 
   return (
     <div className="vc-nav">

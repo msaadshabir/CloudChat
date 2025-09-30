@@ -33,10 +33,11 @@ async function handleSubmit(formData: FormData) {
   redirect('/');
 }
 
-export default async function OnboardingPage({ searchParams }: { searchParams?: { error?: string } }) {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
   const cu = await currentUser();
+  const sp = await searchParams;
 
   return (
     <div className="min-h-screen bg-black text-white flex">
@@ -72,8 +73,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams?: 
               <p className="text-white/50 text-xs">Up to 160 characters.</p>
             </div>
 
-            {searchParams?.error && (
-              <div className="text-red-400 text-sm">{searchParams.error}</div>
+            {sp?.error && (
+              <div className="text-red-400 text-sm">{sp.error}</div>
             )}
 
             <button type="submit" className="vercel-button w-full py-2">Save</button>

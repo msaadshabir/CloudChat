@@ -1,7 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { getDb } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 
 // Ensures a local user row exists/updated for the signed-in Clerk user id.
 // Uses Clerk's username (for @handle) and display name; no email fallbacks.
