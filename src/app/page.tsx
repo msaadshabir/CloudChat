@@ -1,45 +1,45 @@
 // src/app/page.tsx
 import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/lib/db';
-import { tweets, users, likes } from '@/lib/db/schema';
+import { tweets, users as usersTable, likes } from '@/lib/db/schema';
 import { eq, count, desc } from 'drizzle-orm';
 import CreateCloud from '@/components/CreateTweet';
 import TweetCard from '@/components/TweetCard';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
-import { users as usersTable } from '@/lib/db/schema';
 
 export default async function HomePage() {
   const { userId } = await auth();
+  const db = await getDb();
   if (userId) {
-    // If signed in but missing username/name, send to onboarding
-    const db = await getDb();
-    const [row] = await db.select({ username: usersTable.username, name: usersTable.name }).from(usersTable).where(eq(usersTable.id, userId));
-    if (!row?.username || !row?.name) {
-      // soft-gate: show feed but we could also redirect here with headers
-      // In app router, use Redirect component if desired; for now we keep home public as requested
-    }
+    // If signed in but missing username/name, we could redirect to onboarding; keep public for now
+    const [row] = await db
+      .select({ username: usersTable.username, name: usersTable.name })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+    // no-op; information purpose only
+    void row;
   }
 
   // Fetch tweets with author info and like counts
-  const tweetData = await getDb()
+  const tweetData = await db
     .select({
       id: tweets.id,
       content: tweets.content,
       createdAt: tweets.createdAt,
       authorId: tweets.authorId,
       author: {
-        id: users.id,
-        name: users.name,
-        image: users.image,
-        username: users.username,
+        id: usersTable.id,
+        name: usersTable.name,
+        image: usersTable.image,
+        username: usersTable.username,
       },
       likeCount: count(likes.id),
     })
     .from(tweets)
-    .leftJoin(users, eq(tweets.authorId, users.id))
+    .leftJoin(usersTable, eq(tweets.authorId, usersTable.id))
     .leftJoin(likes, eq(tweets.id, likes.tweetId))
-    .groupBy(tweets.id, users.id)
+    .groupBy(tweets.id, usersTable.id)
     .orderBy(desc(tweets.createdAt))
     .limit(50);
 

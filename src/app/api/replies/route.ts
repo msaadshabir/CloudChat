@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/lib/db';
 import { replies } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { ensureRepliesTable } from '@/lib/db/migrations';
 import { containsBannedLanguage, getModerationErrorMessage } from '@/lib/moderation';
 

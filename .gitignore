@@ -10,8 +10,7 @@ node_modules/
 
 # Next.js
 .next/
-/out/
-.next-env.local
+out/
 
 # Production builds
 /build
@@ -28,15 +27,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Local env files
+# Env files
 .env
 .env*.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Vercel
-.vercel
 .vercel/
 
 # Vercel Blob
@@ -61,11 +56,6 @@ migrations/
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
 # Runtime data
 pids
@@ -102,9 +92,6 @@ jspm_packages/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env.test
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -172,16 +159,9 @@ $RECYCLE.BIN/
 dist/
 build/
 
-# Test coverage
-.nyc_output
-
 # Playwright
 playwright-report/
 test-results/
-
-# Local development
-.env.development.local
-.env.production.local
 
 # TypeScript
 *.tsbuildinfo
@@ -195,7 +175,6 @@ postcss.config.js.map
 
 # Tailwind
 tailwind.config.js.map
-logs_result.csv
 
 # Clerk generated folder when using Clerk CLI under src
 src/.clerk/
