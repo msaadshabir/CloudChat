@@ -3,8 +3,10 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { ensureUsersBioColumn } from '@/lib/db/migrations';
 
 export async function PATCH(req: Request) {
+  await ensureUsersBioColumn();
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

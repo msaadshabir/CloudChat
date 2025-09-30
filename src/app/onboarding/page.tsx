@@ -5,6 +5,7 @@ import { users } from '@/lib/db/schema';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
 import ProfileImageUploader from '@/components/ProfileImageUploader';
+import { ensureUsersBioColumn } from '@/lib/db/migrations';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   if (!userId) redirect('/sign-in');
   const cu = await currentUser();
   const sp = await searchParams;
+  await ensureUsersBioColumn();
 
   return (
     <div className="min-h-screen bg-black text-white flex">

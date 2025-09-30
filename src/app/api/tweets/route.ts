@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(newTweet);
   } catch {
-    return NextResponse.json({ error: 'Failed to create tweet' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create cloud' }, { status: 500 });
   }
 }
 
@@ -57,6 +57,6 @@ export async function GET() {
     
     return NextResponse.json(tweetData);
   } catch {
-    return NextResponse.json({ error: 'Failed to fetch tweets' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch clouds' }, { status: 500 });
   }
 }

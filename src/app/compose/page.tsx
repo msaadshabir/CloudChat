@@ -1,6 +1,6 @@
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
-import CreateTweet from '@/components/CreateTweet';
+import CreateCloud from '@/components/CreateTweet';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ export default function ComposePage() {
             <p className="text-white/60 text-sm">Share a new cloud with your network</p>
           </div>
 
-          <CreateTweet />
+          <CreateCloud />
         </div>
       </div>
     </div>

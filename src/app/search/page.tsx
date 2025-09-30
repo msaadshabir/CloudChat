@@ -5,10 +5,12 @@ import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
 import { ensureCurrentUserInDb } from '@/lib/users/ensureUser';
 import SearchBar from '../../components/SearchBar';
+import { ensureUsersBioColumn } from '@/lib/db/migrations';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  await ensureUsersBioColumn();
   await ensureCurrentUserInDb();
   const db = await getDb();
   const sp = await searchParams;

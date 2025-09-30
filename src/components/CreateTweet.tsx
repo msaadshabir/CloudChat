@@ -3,7 +3,7 @@ import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function CreateTweet() {
+export default function CreateCloud() {
   const { user } = useUser();
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);

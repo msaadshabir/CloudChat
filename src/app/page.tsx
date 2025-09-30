@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/lib/db';
 import { tweets, users, likes } from '@/lib/db/schema';
 import { eq, count, desc } from 'drizzle-orm';
-import CreateTweet from '@/components/CreateTweet';
+import CreateCloud from '@/components/CreateTweet';
 import TweetCard from '@/components/TweetCard';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
@@ -83,7 +83,7 @@ export default async function HomePage() {
           </div>
 
           {/* Create Cloud */}
-          {userId && <CreateTweet />}
+          {userId && <CreateCloud />}
 
           {/* Cloud Feed */}
           <div className="space-y-4">

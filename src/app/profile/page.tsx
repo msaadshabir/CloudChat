@@ -6,10 +6,12 @@ import { getDb } from '@/lib/db';
 import { tweets, users, likes } from '@/lib/db/schema';
 import { count, desc, eq } from 'drizzle-orm';
 import TweetCard from '@/components/TweetCard';
+import { ensureUsersBioColumn } from '@/lib/db/migrations';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
+  await ensureUsersBioColumn();
   const { userId } = await auth();
 
   const db = await getDb();
