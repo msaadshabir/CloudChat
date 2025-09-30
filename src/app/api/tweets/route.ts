@@ -3,6 +3,7 @@ import { tweets, likes, users } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs/server';
 import { eq, count, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { containsBannedLanguage, getModerationErrorMessage } from '@/lib/moderation';
 
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -15,6 +16,9 @@ export async function POST(request: Request) {
   }
   if (text.length > 280) {
     return NextResponse.json({ error: 'Content exceeds 280 characters' }, { status: 400 });
+  }
+  if (containsBannedLanguage(text)) {
+    return NextResponse.json({ error: getModerationErrorMessage() }, { status: 400 });
   }
   
   try {
