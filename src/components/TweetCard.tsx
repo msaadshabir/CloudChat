@@ -2,8 +2,7 @@
 
 import { format } from 'date-fns';
 import { shortRelative } from '@/lib/time';
-// Replace lucide icons with random generated SVGs
-import RandomIcon from './RandomIcon';
+import { Heart, MessageCircle, Repeat } from 'lucide-react';
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -15,19 +14,26 @@ interface Tweet {
   createdAt: Date;
   likes: number;
   replies: number;
+  retweets?: number;
 }
 
 export default function TweetCard({ tweet }: { tweet: Tweet }) {
-  const { user } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
   const [likeCount, setLikeCount] = useState(tweet.likes);
   const [replyCount, setReplyCount] = useState(tweet.replies);
+  const [liked, setLiked] = useState(false);
+  const [retweetCount, setRetweetCount] = useState(tweet.retweets ?? 0);
   const [retweeted, setRetweeted] = useState(false);
   const [commenting, setCommenting] = useState(false);
   const [comment, setComment] = useState('');
+  const [likePending, setLikePending] = useState(false);
+  const [retweetPending, setRetweetPending] = useState(false);
+  const [replyPending, setReplyPending] = useState(false);
 
   const handleAuthRequired = () => {
-    if (!user) {
+    if (!isLoaded) return true; // wait until Clerk is ready
+    if (!isSignedIn) {
       router.push('/sign-in');
       return true;
     }
@@ -43,50 +49,71 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
     const text = comment.trim();
     if (!text) return;
     try {
+      setReplyPending(true);
       const res = await fetch('/api/replies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id, content: text }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.error('Reply failed', await res.text());
+        return;
+      }
       const data = await res.json();
       setReplyCount(typeof data.replies === 'number' ? data.replies : replyCount + 1);
       setComment('');
       setCommenting(false);
-    } catch {}
+    } catch (e) {
+      console.error('Reply error', e);
+    } finally {
+      setReplyPending(false);
+    }
   };
 
   const handleRetweet = async () => {
     if (handleAuthRequired()) return;
     try {
+      setRetweetPending(true);
       const res = await fetch('/api/retweets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.error('Retweet failed', await res.text());
+        return;
+      }
       const data = await res.json();
       setRetweeted(Boolean(data.retweeted));
-    } catch {}
+      if (typeof data.retweets === 'number') setRetweetCount(data.retweets);
+    } catch (e) {
+      console.error('Retweet error', e);
+    } finally {
+      setRetweetPending(false);
+    }
   };
 
   const handleLike = async () => {
     if (handleAuthRequired()) return;
     try {
+      setLikePending(true);
       const res = await fetch('/api/likes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.error('Like failed', await res.text());
+        return;
+      }
       const data = await res.json();
       if (typeof data.likes === 'number') setLikeCount(data.likes);
-    } catch {}
-  };
-
-  const handleShare = () => {
-    if (handleAuthRequired()) return;
-    // TODO: Implement share functionality
+      if (typeof data.liked === 'boolean') setLiked(data.liked);
+    } catch (e) {
+      console.error('Like error', e);
+    } finally {
+      setLikePending(false);
+    }
   };
 
   return (
@@ -124,23 +151,23 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between max-w-md pt-4 border-t border-[color:var(--border)]">
-            <button onClick={handleReply} className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors group">
+            <button onClick={handleReply} disabled={replyPending} className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors group disabled:opacity-50" aria-label="Reply">
               <div className="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
-                <RandomIcon seed={`reply-${tweet.id}`} />
+                <MessageCircle className="w-5 h-5" />
               </div>
               <span className="text-sm">{replyCount}</span>
             </button>
 
-            <button onClick={handleRetweet} className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors group">
+            <button onClick={handleRetweet} disabled={retweetPending} className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors group disabled:opacity-50" aria-label="Retweet">
               <div className="p-2 rounded-full group-hover:bg-green-400/10 transition-colors">
-                <RandomIcon seed={`retweet-${tweet.id}-${retweeted}`} />
+                <Repeat className={`w-5 h-5 ${retweeted ? 'text-green-400' : ''}`} />
               </div>
-              <span className="text-sm">{retweeted ? '1' : '0'}</span>
+              <span className="text-sm">{retweetCount}</span>
             </button>
 
-            <button onClick={handleLike} className="flex items-center space-x-2 text-gray-400 hover:text-red-400 transition-colors group">
+            <button onClick={handleLike} disabled={likePending} className="flex items-center space-x-2 text-gray-400 hover:text-red-400 transition-colors group disabled:opacity-50" aria-label="Like">
               <div className="p-2 rounded-full group-hover:bg-red-400/10 transition-colors">
-                <RandomIcon seed={`like-${tweet.id}-${likeCount}`} />
+                <Heart className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} />
               </div>
               <span className="text-sm">{likeCount}</span>
             </button>
@@ -156,7 +183,7 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
                 maxLength={280}
               />
               <div className="flex justify-end mt-2">
-                <button onClick={handleReply} className="vercel-button px-3 py-1 text-sm">Post</button>
+                <button onClick={handleReply} disabled={replyPending} className="vercel-button px-3 py-1 text-sm disabled:opacity-50">{replyPending ? 'Posting…' : 'Post'}</button>
               </div>
             </div>
           )}
