@@ -1,6 +1,6 @@
 # CloudChat
 
-Vercel-themed microblogging app (X-like) built on Next.js App Router with Clerk auth, Neon Postgres via Drizzle ORM, and Tailwind CSS. Create clouds, like, retweet, and comment—with moderation and admin tooling.
+A lightweight, real-time platform inspired by X (Twitter) built on Next.js App Router with Clerk auth, Neon Postgres via Drizzle ORM, and Tailwind CSS. Create clouds, like, retweet, and comment—with moderation and admin tooling.
 
 ## Features
 
