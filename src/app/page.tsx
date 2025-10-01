@@ -57,8 +57,7 @@ export default async function HomePage() {
       username: tweet.author!.username || 'user',
     },
     likes: Number(tweet.likeCount),
-    replies: 0, // TODO: Add replies count
-    isLiked: false, // TODO: Implement like status
+    replies: 0,
   }));
 
   return (

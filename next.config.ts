@@ -1,4 +1,6 @@
-const nextConfig: any = {
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   // External packages for server components
   serverExternalPackages: ['drizzle-orm'],
   // Pin Turbopack root to this workspace to avoid incorrect root inference
