@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 
 let migrationsRan: Promise<void> | null = null;
+let indexesCreated = false;
 
 export async function ensureUsersBioColumn() {
   if (!migrationsRan) {
@@ -48,4 +49,45 @@ export async function ensureRepliesTable() {
     content text NOT NULL,
     created_at timestamp DEFAULT now()
   )`;
+}
+
+// Create performance indexes for common queries
+export async function ensurePerformanceIndexes() {
+  if (indexesCreated) return;
+  if (!process.env.DATABASE_URL) return;
+  
+  const sql = neon(process.env.DATABASE_URL);
+  
+  try {
+    // Index on tweets.author_id for profile queries and joins
+    await sql`CREATE INDEX IF NOT EXISTS idx_tweets_author_id ON tweets(author_id)`;
+    
+    // Index on tweets.created_at for feed ordering (descending)
+    await sql`CREATE INDEX IF NOT EXISTS idx_tweets_created_at_desc ON tweets(created_at DESC)`;
+    
+    // Index on likes.tweet_id for counting likes per tweet
+    await sql`CREATE INDEX IF NOT EXISTS idx_likes_tweet_id ON likes(tweet_id)`;
+    
+    // Index on likes.user_id for finding user's likes
+    await sql`CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id)`;
+    
+    // Index on replies.tweet_id for counting replies per tweet
+    await sql`CREATE INDEX IF NOT EXISTS idx_replies_tweet_id ON replies(tweet_id)`;
+    
+    // Index on retweets.tweet_id for counting retweets per tweet
+    await sql`CREATE INDEX IF NOT EXISTS idx_retweets_tweet_id ON retweets(tweet_id)`;
+    
+    // Index on retweets.user_id for finding user's retweets
+    await sql`CREATE INDEX IF NOT EXISTS idx_retweets_user_id ON retweets(user_id)`;
+    
+    // Index on users.username for search queries
+    await sql`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`;
+    
+    // Index on users.created_at for user listing
+    await sql`CREATE INDEX IF NOT EXISTS idx_users_created_at_desc ON users(created_at DESC)`;
+    
+    indexesCreated = true;
+  } catch (error) {
+    console.error('Failed to create performance indexes:', error);
+  }
 }

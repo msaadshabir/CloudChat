@@ -25,7 +25,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className="vc-sidebar h-screen fixed left-0 top-0 pb-16"
+      className="vc-sidebar h-screen fixed left-0 top-0 pb-16 hidden md:flex"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
     >
       {/* Logo */}

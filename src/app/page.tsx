@@ -1,27 +1,28 @@
 // src/app/page.tsx
 import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/lib/db';
-import { tweets, users as usersTable, likes } from '@/lib/db/schema';
-import { eq, count, desc } from 'drizzle-orm';
+import { tweets, users as usersTable, likes, retweets, replies } from '@/lib/db/schema';
+import { eq, count, desc, and, inArray } from 'drizzle-orm';
 import CreateCloud from '@/components/CreateTweet';
-import TweetCard from '@/components/TweetCard';
+import InfiniteFeed from '@/components/InfiniteFeed';
 import Sidebar from '@/components/Sidebar';
 import TopNav from '@/components/TopNav';
+import NewTweetsBanner from '@/components/NewTweetsBanner';
+
+const PAGE_SIZE = 20;
 
 export default async function HomePage() {
   const { userId } = await auth();
   const db = await getDb();
   if (userId) {
-    // If signed in but missing username/name, we could redirect to onboarding; keep public for now
     const [row] = await db
       .select({ username: usersTable.username, name: usersTable.name })
       .from(usersTable)
       .where(eq(usersTable.id, userId));
-    // no-op; information purpose only
     void row;
   }
 
-  // Fetch tweets with author info and like counts
+  // Fetch initial tweets with author info and like counts
   const tweetData = await db
     .select({
       id: tweets.id,
@@ -41,37 +42,88 @@ export default async function HomePage() {
     .leftJoin(likes, eq(tweets.id, likes.tweetId))
     .groupBy(tweets.id, usersTable.id)
     .orderBy(desc(tweets.createdAt))
-    .limit(50);
+    .limit(PAGE_SIZE + 1);
 
-  // Format data for TweetCard
-  const tweetsWithMetadata = tweetData
-    .filter(tweet => tweet.author) // Filter out tweets with null author
+  // Check if there are more results
+  const hasMore = tweetData.length > PAGE_SIZE;
+  const results = hasMore ? tweetData.slice(0, PAGE_SIZE) : tweetData;
+  const nextCursor = hasMore && results.length > 0 
+    ? results[results.length - 1].createdAt?.toISOString() || null
+    : null;
+
+  // Fetch reply and retweet counts for initial tweets
+  const tweetIds = results.map(t => t.id);
+  
+  let replyCounts: Record<string, number> = {};
+  let retweetCounts: Record<string, number> = {};
+  let userLikes: Set<string> = new Set();
+  let userRetweets: Set<string> = new Set();
+
+  if (tweetIds.length > 0) {
+    const replyResults = await db
+      .select({ tweet_id: replies.tweetId, count: count() })
+      .from(replies)
+      .where(inArray(replies.tweetId, tweetIds))
+      .groupBy(replies.tweetId) as Array<{ tweet_id: string | null; count: number }>;
+    replyCounts = Object.fromEntries(replyResults.filter(r => r.tweet_id).map(r => [r.tweet_id!, r.count]));
+
+    const retweetResults = await db
+      .select({ tweet_id: retweets.tweetId, count: count() })
+      .from(retweets)
+      .where(inArray(retweets.tweetId, tweetIds))
+      .groupBy(retweets.tweetId) as Array<{ tweet_id: string | null; count: number }>;
+    retweetCounts = Object.fromEntries(retweetResults.filter(r => r.tweet_id).map(r => [r.tweet_id!, r.count]));
+
+    if (userId) {
+      const userLikeResults = await db
+        .select({ tweetId: likes.tweetId })
+        .from(likes)
+        .where(and(eq(likes.userId, userId), inArray(likes.tweetId, tweetIds)));
+      userLikes = new Set(userLikeResults.map(l => l.tweetId!));
+
+      const userRetweetResults = await db
+        .select({ tweetId: retweets.tweetId })
+        .from(retweets)
+        .where(and(eq(retweets.userId, userId), inArray(retweets.tweetId, tweetIds)));
+      userRetweets = new Set(userRetweetResults.map(r => r.tweetId!));
+    }
+  }
+
+  // Format data for InfiniteFeed
+  const tweetsWithMetadata = results
+    .filter(tweet => tweet.author)
     .map(tweet => ({
-    id: tweet.id,
-    content: tweet.content,
-    createdAt: tweet.createdAt || new Date(),
-    author: {
-      id: tweet.author!.id,
-      name: tweet.author!.name || 'Anonymous',
-      image: tweet.author!.image || null,
-      username: tweet.author!.username || 'user',
-    },
-    likes: Number(tweet.likeCount),
-    replies: 0,
-  }));
+      id: tweet.id,
+      content: tweet.content,
+      createdAt: tweet.createdAt || new Date(),
+      author: {
+        id: tweet.author!.id,
+        name: tweet.author!.name || 'Anonymous',
+        image: tweet.author!.image || null,
+        username: tweet.author!.username || 'user',
+      },
+      likes: Number(tweet.likeCount),
+      replies: replyCounts[tweet.id] || 0,
+      retweets: retweetCounts[tweet.id] || 0,
+      isLiked: userLikes.has(tweet.id),
+      isRetweeted: userRetweets.has(tweet.id),
+    }));
 
   return (
     <div className="min-h-screen bg-black text-white flex">
       {/* Left Sidebar */}
       <Sidebar />
 
+      {/* New Tweets Banner */}
+      <NewTweetsBanner />
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-[260px]">
+      <div className="flex-1 flex flex-col ml-0 md:ml-[260px]">
   {/* Top Navigation */}
   <TopNav />
 
         {/* Feed Content */}
-        <div className="flex-1 max-w-2xl mx-auto px-6 py-10 mt-6">
+        <div className="flex-1 max-w-2xl mx-auto px-4 md:px-6 py-10 mt-6 w-full">
           {/* Feed Header */}
           <div className="mb-6 mt-2">
             <div className="flex items-center gap-2 mb-2">
@@ -84,24 +136,12 @@ export default async function HomePage() {
           {/* Create Cloud */}
           {userId && <CreateCloud />}
 
-          {/* Cloud Feed */}
-          <div className="space-y-4">
-            {tweetsWithMetadata.length === 0 ? (
-              <div className="text-center vercel-card px-12 py-16">
-                <div className="text-white/50 mb-4">
-                  <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium mb-2">No clouds yet</h3>
-                <p className="text-white/50 max-w-md mx-auto">Be the first to create a cloud and start the conversation.</p>
-              </div>
-            ) : (
-              tweetsWithMetadata.map(tweet => (
-                <TweetCard key={tweet.id} tweet={tweet} />
-              ))
-            )}
-          </div>
+          {/* Cloud Feed with Infinite Scroll */}
+          <InfiniteFeed 
+            initialTweets={tweetsWithMetadata}
+            initialCursor={nextCursor}
+            initialHasMore={hasMore}
+          />
         </div>
       </div>
     </div>
@@ -110,3 +150,5 @@ export default async function HomePage() {
 
 // Force dynamic rendering to avoid prerendering issues with Clerk
 export const dynamic = 'force-dynamic';
+// Revalidate the page data every 30 seconds
+export const revalidate = 30;

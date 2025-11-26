@@ -5,7 +5,7 @@ import { count } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = await getDb();
     const result = await db
       .select({ totalTweets: count(tweets.id) })
       .from(tweets)

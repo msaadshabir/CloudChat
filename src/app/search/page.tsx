@@ -39,10 +39,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-[260px]">
+      <div className="flex-1 flex flex-col ml-0 md:ml-[260px]">
         <TopNav />
 
-        <div className="flex-1 max-w-2xl mx-auto px-6 py-10 mt-6">
+        <div className="flex-1 max-w-2xl mx-auto px-4 md:px-6 py-10 mt-6 w-full">
           {/* Header */}
           <div className="mb-6 mt-2">
             <div className="flex items-center gap-2 mb-2">

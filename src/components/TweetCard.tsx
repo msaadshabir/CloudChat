@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { shortRelative } from '@/lib/time';
 import { Heart, MessageCircle, Repeat } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -15,6 +15,8 @@ interface Tweet {
   likes: number;
   replies: number;
   retweets?: number;
+  isLiked?: boolean;
+  isRetweeted?: boolean;
 }
 
 export default function TweetCard({ tweet }: { tweet: Tweet }) {
@@ -22,23 +24,23 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const router = useRouter();
   const [likeCount, setLikeCount] = useState(tweet.likes);
   const [replyCount, setReplyCount] = useState(tweet.replies);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(tweet.isLiked ?? false);
   const [retweetCount, setRetweetCount] = useState(tweet.retweets ?? 0);
-  const [retweeted, setRetweeted] = useState(false);
+  const [retweeted, setRetweeted] = useState(tweet.isRetweeted ?? false);
   const [commenting, setCommenting] = useState(false);
   const [comment, setComment] = useState('');
   const [likePending, setLikePending] = useState(false);
   const [retweetPending, setRetweetPending] = useState(false);
   const [replyPending, setReplyPending] = useState(false);
 
-  const handleAuthRequired = () => {
-    if (!isLoaded) return true; // wait until Clerk is ready
+  const handleAuthRequired = useCallback(() => {
+    if (!isLoaded) return true;
     if (!isSignedIn) {
       router.push('/sign-in');
       return true;
     }
     return false;
-  };
+  }, [isLoaded, isSignedIn, router]);
 
   const handleReply = async () => {
     if (handleAuthRequired()) return;
@@ -48,22 +50,32 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
     }
     const text = comment.trim();
     if (!text) return;
+    
+    // Optimistic update
+    const previousCount = replyCount;
+    setReplyCount(prev => prev + 1);
+    setReplyPending(true);
+    
     try {
-      setReplyPending(true);
       const res = await fetch('/api/replies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id, content: text }),
       });
       if (!res.ok) {
+        // Rollback on error
+        setReplyCount(previousCount);
         console.error('Reply failed', await res.text());
         return;
       }
       const data = await res.json();
-      setReplyCount(typeof data.replies === 'number' ? data.replies : replyCount + 1);
+      // Sync with server count
+      if (typeof data.replies === 'number') setReplyCount(data.replies);
       setComment('');
       setCommenting(false);
     } catch (e) {
+      // Rollback on error
+      setReplyCount(previousCount);
       console.error('Reply error', e);
     } finally {
       setReplyPending(false);
@@ -72,21 +84,35 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
 
   const handleRetweet = async () => {
     if (handleAuthRequired()) return;
+    
+    // Optimistic update
+    const previousRetweeted = retweeted;
+    const previousCount = retweetCount;
+    setRetweeted(!retweeted);
+    setRetweetCount(prev => retweeted ? prev - 1 : prev + 1);
+    setRetweetPending(true);
+    
     try {
-      setRetweetPending(true);
       const res = await fetch('/api/retweets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id }),
       });
       if (!res.ok) {
+        // Rollback on error
+        setRetweeted(previousRetweeted);
+        setRetweetCount(previousCount);
         console.error('Retweet failed', await res.text());
         return;
       }
       const data = await res.json();
-      setRetweeted(Boolean(data.retweeted));
+      // Sync with server state
+      if (typeof data.retweeted === 'boolean') setRetweeted(data.retweeted);
       if (typeof data.retweets === 'number') setRetweetCount(data.retweets);
     } catch (e) {
+      // Rollback on error
+      setRetweeted(previousRetweeted);
+      setRetweetCount(previousCount);
       console.error('Retweet error', e);
     } finally {
       setRetweetPending(false);
@@ -95,21 +121,35 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
 
   const handleLike = async () => {
     if (handleAuthRequired()) return;
+    
+    // Optimistic update
+    const previousLiked = liked;
+    const previousCount = likeCount;
+    setLiked(!liked);
+    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+    setLikePending(true);
+    
     try {
-      setLikePending(true);
       const res = await fetch('/api/likes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tweetId: tweet.id }),
       });
       if (!res.ok) {
+        // Rollback on error
+        setLiked(previousLiked);
+        setLikeCount(previousCount);
         console.error('Like failed', await res.text());
         return;
       }
       const data = await res.json();
+      // Sync with server state
       if (typeof data.likes === 'number') setLikeCount(data.likes);
       if (typeof data.liked === 'boolean') setLiked(data.liked);
     } catch (e) {
+      // Rollback on error
+      setLiked(previousLiked);
+      setLikeCount(previousCount);
       console.error('Like error', e);
     } finally {
       setLikePending(false);

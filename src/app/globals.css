@@ -209,3 +209,32 @@ body {
   background: rgba(255,255,255,0.06);
   color: var(--foreground);
 }
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .vc-sidebar {
+    display: none;
+  }
+  
+  /* Add bottom padding for mobile nav */
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Safe area support for iOS */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Responsive tweaks for cards */
+@media (max-width: 640px) {
+  .vercel-card {
+    border-radius: 8px;
+  }
+  
+  .vc-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}
