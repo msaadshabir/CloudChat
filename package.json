@@ -15,19 +15,19 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.0.0",
+    "@clerk/nextjs": "^6.36.2",
     "@neondatabase/serverless": "^0.10.0",
     "@vercel/blob": "^2.0.0",
     "date-fns": "^4.1.0",
-    "drizzle-orm": "^0.38.0",
+    "drizzle-orm": "^0.45.1",
     "drizzle-zod": "^0.8.3",
     "leo-profanity": "^1.8.0",
     "lucide-react": "^0.544.0",
-    "next": "15.5.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "^16.0.8",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "svix": "^1.76.1",
-    "swr": "^2.3.6",
+    "swr": "^2.3.7",
     "zod": "^4.1.13"
   },
   "devDependencies": {
@@ -41,12 +41,12 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.1",
     "dotenv": "^17.2.2",
-    "drizzle-kit": "^0.31.5",
+    "drizzle-kit": "^0.31.8",
     "eslint": "^9",
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "^16.0.8",
     "jsdom": "^27.2.0",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5",
-    "vitest": "^4.0.14"
+    "vitest": "^4.0.15"
   }
 }
